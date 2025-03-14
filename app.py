@@ -30,8 +30,9 @@ user_clients = {}
 
 
 
-def get_authorized_data(kinde_client):
-    user = kinde_client.get_user_details()
+def get_authorized_data(token):
+    print("The token is: ", token)
+    user = kinde_client.get_user_details_token(token)
     return {
         "id": user.get("id"),
         "user_given_name": user.get("given_name"),
@@ -56,10 +57,13 @@ def login_required(user):
 def index():
     data = {"current_year": date.today().year}
     template = "logged_out.html"
+    print("The user session is: ", session.get("user"))
     if session.get("user"):
-        kinde_client = user_clients.get(session.get("user"))
-        if kinde_client and kinde_client.is_authenticated():
-            data.update(get_authorized_data(kinde_client))        
+        user_token: dict = user_clients.get(session.get("user"))["user_token"]
+        print("Before is_authenticated_token : " + str(user_token));
+        if kinde_client.is_authenticated_token(user_token):
+            print("After is_authenticated_token")
+            data.update(get_authorized_data(user_token))        
             template = "home.html"
     return render_template(template, **data)
 
@@ -76,11 +80,14 @@ def register():
 
 @app.route("/api/auth/kinde_callback")
 def callback():
-    kinde_client.fetch_token(authorization_response=request.url)
+    userToken = kinde_client.fetch_token_value(authorization_response=request.url)
     data = {"current_year": date.today().year}
-    data.update(get_authorized_data(kinde_client))
+    data.update(get_authorized_data(userToken))
+    data["user_token"] = userToken
+    print("The data is: ", data)
     session["user"] = data.get("id")
-    user_clients[data.get("id")] = kinde_client
+    print("The user session is: ", session.get("user"))
+    user_clients[data.get("id")] = data
     return app.redirect(url_for("index"))
 
 
@@ -103,8 +110,9 @@ def get_details():
 
         if kinde_client:
             data = {"current_year": date.today().year}
-            data.update(get_authorized_data(kinde_client))
-            data["access_token"] = kinde_client.configuration.access_token
+            user_token: dict = kinde_client["user_token"]
+            data.update(get_authorized_data(user_token))
+            data["access_token"] = user_token["access_token"]
             template = "details.html"
 
     return render_template(template, **data)
@@ -119,7 +127,9 @@ def get_helper_functions():
         data = {"current_year": date.today().year}
 
         if kinde_client:
-            data.update(get_authorized_data(kinde_client))
+            user_token: dict = kinde_client["user_token"]
+            data.update(get_authorized_data(user_token))
+            data["access_token"] = user_token["access_token"]
             #print(kinde_client.configuration.access_token)
             data["claim"] = kinde_client.get_claim("iss")
             data["organization"] = kinde_client.get_organization()
@@ -146,7 +156,7 @@ def get_api_demo():
         data = {"current_year": date.today().year}
 
         if kinde_client:
-            data.update(get_authorized_data(kinde_client))
+            data.update(get_authorized_data(kinde_client["user_token"]))
 
             try:
                 kinde_mgmt_api_client = KindeApiClient(

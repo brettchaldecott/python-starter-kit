@@ -31,7 +31,6 @@ user_clients = {}
 
 
 def get_authorized_data(token):
-    print("The token is: ", token)
     user = kinde_client.get_user_details_token(token)
     return {
         "id": user.get("id"),
@@ -57,12 +56,9 @@ def login_required(user):
 def index():
     data = {"current_year": date.today().year}
     template = "logged_out.html"
-    print("The user session is: ", session.get("user"))
     if session.get("user"):
         user_token: dict = user_clients.get(session.get("user"))["user_token"]
-        print("Before is_authenticated_token : " + str(user_token));
         if kinde_client.is_authenticated_token(user_token):
-            print("After is_authenticated_token")
             data.update(get_authorized_data(user_token))        
             template = "home.html"
     return render_template(template, **data)
@@ -84,9 +80,7 @@ def callback():
     data = {"current_year": date.today().year}
     data.update(get_authorized_data(userToken))
     data["user_token"] = userToken
-    print("The data is: ", data)
     session["user"] = data.get("id")
-    print("The user session is: ", session.get("user"))
     user_clients[data.get("id")] = data
     return app.redirect(url_for("index"))
 
@@ -130,7 +124,6 @@ def get_helper_functions():
             user_token: dict = kinde_client["user_token"]
             data.update(get_authorized_data(user_token))
             data["access_token"] = user_token["access_token"]
-            #print(kinde_client.configuration.access_token)
             data["claim"] = kinde_client.get_claim("iss")
             data["organization"] = kinde_client.get_organization()
             data["user_organizations"] = kinde_client.get_user_organizations()

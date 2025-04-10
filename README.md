@@ -1,57 +1,111 @@
-# Kinde Starter Kit - Flask
+# Kinde Python Starter Kit
 
-## Register an account on Kinde
+A Flask application demonstrating integration with Kinde Authentication and Management API.
 
-To get started set up an account on [Kinde](https://app.kinde.com/register).
+## Features
 
-## Setup your local environment
+- User authentication (login, register, logout)
+- User profile management
+- Organization management
+- Feature flags
+- Management API integration
 
-Clone this repo and install dependencies by running 
-```console
-$ pip install -r requirements.txt
-```
-The minimum required version of Python is 3.8.
+## Prerequisites
 
-Set the variables in `config.py` with the details from the Kinde `App Keys` page
+- Python 3.8 or higher
+- pip (Python package manager)
+- A Kinde account and application
 
-> KINDE_ISSUER_URL - The token host value
->
-> KINDE_CALLBACK_URL - The callback URL
-> 
-> LOGOUT_REDIRECT_URL - The logout URL (after logging out)
->
-> CLIENT_ID - The client id
->
-> CLIENT_SECRET - The client secret
+## Setup
 
-e.g.
-
-```
-KINDE_ISSUER_URL = "https://<your_kinde_subdomain>.kinde.com"
-KINDE_CALLBACK_URL = "http://localhost:5000/api/auth/kinde_callback"
-LOGOUT_REDIRECT_URL = "http://localhost:5000"
-CLIENT_ID = "<your_kinde_client_id>"
-CLIENT_SECRET = "<your_kinde_client_secret>"
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd python-starter-kit
 ```
 
-## Set your Callback and Logout URLs
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-Your user will be redirected to Kinde to authenticate. After they have logged in or registered they will be redirected back to your Flask application.
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-You need to specify in Kinde which URL you would like your user to be redirected to in order to authenticate your app.
+4. Create a `.env` file in the root directory with your Kinde configuration:
+```env
+# Site Configuration
+SITE_HOST=127.0.0.1
+SITE_PORT=5000
 
-On the App Keys page set ` Allowed callback URLs` to `http://localhost:5000/api/auth/kinde_callback`
+# Kinde Configuration
+KINDE_ISSUER_URL=https://your-subdomain.kinde.com
+KINDE_CLIENT_ID=your-client-id
+KINDE_CLIENT_SECRET=your-client-secret
+KINDE_GRANT_TYPE=authorization_code
+KINDE_CODE_VERIFIER=your-code-verifier
 
-> Important! This is required for your users to successfully log in to your app.
+# Management API Configuration
+KINDE_MGMT_API_CLIENT_ID=your-management-api-client-id
+KINDE_MGMT_API_CLIENT_SECRET=your-management-api-client-secret
 
-You will also need to set the URL they will be redirected to upon logout. Set the `Allowed logout redirect URLs` to http://localhost:5000.
+# Flask Configuration
+FLASK_SECRET_KEY=your-secret-key
+FLASK_DEBUG=True
+```
 
-## Start the app
+5. Run the application:
+```bash
+python app.py
+```
 
-Run `flask run` and navigate to `http://localhost:5000`.
+The application will be available at `http://127.0.0.1:5000`.
 
-Click on `Sign up` and register your first user for your business!
+## Configuration
 
-## View users in Kinde
+### Environment Variables
 
-If you navigate to the "Users" page within Kinde you will see your newly registered user there. 🚀
+- `SITE_HOST`: Host address for the Flask application
+- `SITE_PORT`: Port number for the Flask application
+- `KINDE_ISSUER_URL`: Your Kinde domain URL
+- `KINDE_CLIENT_ID`: Your Kinde application client ID
+- `KINDE_CLIENT_SECRET`: Your Kinde application client secret
+- `KINDE_GRANT_TYPE`: OAuth grant type (authorization_code or authorization_code_with_pkce)
+- `KINDE_CODE_VERIFIER`: Code verifier for PKCE (required if using PKCE)
+- `KINDE_MGMT_API_CLIENT_ID`: Kinde Management API client ID
+- `KINDE_MGMT_API_CLIENT_SECRET`: Kinde Management API client secret
+- `FLASK_SECRET_KEY`: Secret key for Flask session encryption
+- `FLASK_DEBUG`: Enable/disable Flask debug mode
+
+## Project Structure
+
+```
+python-starter-kit/
+├── app.py              # Main application file
+├── config.py           # Configuration settings
+├── requirements.txt    # Python dependencies
+├── .env               # Environment variables
+└── templates/         # HTML templates
+    ├── home.html
+    ├── details.html
+    ├── helpers.html
+    ├── api_demo.html
+    └── errors/
+        ├── 404.html
+        └── 500.html
+```
+
+## Security Considerations
+
+- Never commit the `.env` file to version control
+- Keep your client secrets secure
+- Use HTTPS in production
+- Regularly update dependencies
+- Follow security best practices for session management
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -26,52 +26,31 @@ app.config.from_object("config")
 Session(app)
 
 # Initialize Kinde clients
-def init_kinde_clients():
-    """Initialize Kinde API and OAuth clients."""
-    # Get configuration from environment variables or config file
-    kinde_issuer_url = app.config.get("KINDE_ISSUER_URL")
-    client_id = app.config.get("CLIENT_ID")
-    client_secret = app.config.get("CLIENT_SECRET")
-    grant_type = app.config.get("GRANT_TYPE")
-    callback_url = app.config.get("KINDE_CALLBACK_URL")
-    
-    # Initialize Kinde API client
-    configuration = Configuration(host=kinde_issuer_url)
-    kinde_api_client_params = {
-        "configuration": configuration,
-        "domain": kinde_issuer_url,
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "grant_type": grant_type,
-        "callback_url": callback_url,
-    }
-    
+def init_kinde_oauth():
+    """Initialize Kinde OAuth clients."""
+
     # Initialize OAuth client
     oauth = OAuth(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirect_uri=callback_url,
-        host=kinde_issuer_url,
         framework="flask"
     )
     
     return oauth
 
 # Initialize clients
-oauth = init_kinde_clients()
+oauth = init_kinde_oauth()
 
 # Store user clients in app context
 user_clients = {}
 
 # Helper functions
-def get_authorized_data(user_details):
+def get_authorized_data(user_data):
     """Extract authorized user data from user details."""
     return {
-        "id": user_details.get("id"),
-        "user_given_name": user_details.get("given_name"),
-        "user_family_name": user_details.get("family_name"),
-        "user_email": user_details.get("email"),
-        "user_picture": user_details.get("picture"),
+        "id": user_data.get("id"),
+        "user_given_name": user_data.get("given_name"),
+        "user_family_name": user_data.get("family_name"),
+        "user_email": user_data.get("email"),
+        "user_picture": user_data.get("picture"),
     }
 
 def login_required(f):
